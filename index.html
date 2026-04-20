@@ -1,0 +1,1059 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>PayFlow</title>
+  <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
+  <style>
+    *{
+      margin:0;
+      padding:0;
+      box-sizing:border-box;
+      -webkit-tap-highlight-color:transparent;
+      font-family:Arial,sans-serif;
+    }
+    body{
+      background:#f4f6fb;
+      color:#1d1d1f;
+      overflow-x:hidden;
+    }
+    .app{
+      max-width:430px;
+      margin:auto;
+      min-height:100vh;
+      background:#f4f6fb;
+      position:relative;
+      padding-bottom:92px;
+    }
+    .screen{display:none;}
+    .screen.active{display:block;}
+
+    .top{
+      background:linear-gradient(135deg,#5b22d6,#7d48ff);
+      color:#fff;
+      padding:18px 16px 24px;
+      border-bottom-left-radius:24px;
+      border-bottom-right-radius:24px;
+      box-shadow:0 10px 24px rgba(91,34,214,.22);
+    }
+    .row{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+    }
+    .brand{
+      display:flex;
+      align-items:center;
+      gap:10px;
+    }
+    .logo{
+      width:42px;
+      height:42px;
+      border-radius:14px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      background:rgba(255,255,255,.18);
+      font-size:18px;
+      font-weight:700;
+    }
+    .brand h1{
+      font-size:20px;
+      font-weight:800;
+    }
+    .brand p{
+      font-size:12px;
+      opacity:.9;
+      margin-top:2px;
+    }
+    .profileMini{
+      width:40px;
+      height:40px;
+      border-radius:50%;
+      background:rgba(255,255,255,.18);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-size:18px;
+      cursor:pointer;
+    }
+    .search{
+      margin-top:16px;
+      background:rgba(255,255,255,.18);
+      border-radius:14px;
+      padding:12px 14px;
+    }
+    .search input{
+      width:100%;
+      border:none;
+      outline:none;
+      background:transparent;
+      color:#fff;
+      font-size:14px;
+    }
+    .search input::placeholder{color:rgba(255,255,255,.9);}
+
+    .section{padding:16px;}
+    .card{
+      background:#fff;
+      border-radius:22px;
+      box-shadow:0 10px 24px rgba(0,0,0,.06);
+    }
+
+    .balanceCard{
+      margin-top:-18px;
+      padding:18px;
+    }
+    .balanceHead{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      margin-bottom:10px;
+    }
+    .badge{
+      background:#f0e9ff;
+      color:#5b22d6;
+      padding:6px 10px;
+      border-radius:999px;
+      font-size:12px;
+      font-weight:700;
+    }
+    .balanceAmt{
+      font-size:30px;
+      font-weight:800;
+      margin-bottom:14px;
+    }
+    .miniGrid{
+      display:grid;
+      grid-template-columns:repeat(3,1fr);
+      gap:10px;
+    }
+    .miniBtn{
+      background:#f7f7fc;
+      border-radius:14px;
+      padding:12px 8px;
+      text-align:center;
+      font-size:13px;
+      font-weight:700;
+      cursor:pointer;
+      border:1px solid #ededf5;
+    }
+
+    .titleRow{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      margin-bottom:14px;
+    }
+    .titleRow h2{
+      font-size:18px;
+    }
+    .link{
+      color:#6f43ea;
+      font-size:13px;
+      font-weight:700;
+      cursor:pointer;
+    }
+
+    .grid4{
+      display:grid;
+      grid-template-columns:repeat(4,1fr);
+      gap:14px;
+    }
+    .action{
+      background:#fff;
+      border-radius:18px;
+      padding:14px 8px;
+      text-align:center;
+      box-shadow:0 10px 24px rgba(0,0,0,.06);
+      cursor:pointer;
+      transition:.15s;
+    }
+    .action:active{transform:scale(.96);}
+    .actionIcon{
+      width:50px;
+      height:50px;
+      margin:0 auto 10px;
+      border-radius:16px;
+      background:linear-gradient(135deg,#f0e7ff,#ece2ff);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-size:22px;
+    }
+    .action p{
+      font-size:12px;
+      font-weight:700;
+      line-height:1.25;
+    }
+
+    .promo{
+      padding:18px;
+      background:linear-gradient(135deg,#6430e8,#8754ff);
+      color:#fff;
+      border-radius:22px;
+      box-shadow:0 10px 24px rgba(100,48,232,.25);
+    }
+    .promo h3{
+      font-size:17px;
+      margin-bottom:8px;
+    }
+    .promo p{
+      font-size:13px;
+      line-height:1.5;
+      opacity:.95;
+    }
+    .promo button{
+      margin-top:14px;
+      border:none;
+      background:#fff;
+      color:#5b22d6;
+      padding:10px 14px;
+      border-radius:12px;
+      font-weight:800;
+      cursor:pointer;
+    }
+
+    .txnList{
+      display:flex;
+      flex-direction:column;
+      gap:12px;
+    }
+    .txn{
+      background:#fff;
+      border-radius:18px;
+      padding:14px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      box-shadow:0 10px 24px rgba(0,0,0,.06);
+    }
+    .txnLeft{
+      display:flex;
+      align-items:center;
+      gap:12px;
+    }
+    .txnIcon{
+      width:48px;
+      height:48px;
+      border-radius:16px;
+      background:#f2ebff;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-size:21px;
+    }
+    .txnInfo h4{
+      font-size:15px;
+      margin-bottom:4px;
+    }
+    .txnInfo p{
+      font-size:12px;
+      color:#777;
+    }
+    .txnAmt{
+      text-align:right;
+    }
+    .txnAmt h5{
+      font-size:15px;
+      margin-bottom:4px;
+    }
+    .success{color:#15a34a;font-size:12px;font-weight:800;}
+    .received{color:#2563eb;font-size:12px;font-weight:800;}
+
+    .sub{
+      padding:18px 16px 110px;
+    }
+    .head{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      margin-bottom:18px;
+    }
+    .head h2{
+      font-size:22px;
+    }
+    .back{
+      font-size:22px;
+      cursor:pointer;
+    }
+
+    .box{
+      background:#fff;
+      border-radius:20px;
+      box-shadow:0 10px 24px rgba(0,0,0,.06);
+      padding:16px;
+      margin-bottom:16px;
+    }
+    .label{
+      display:block;
+      font-size:14px;
+      font-weight:700;
+      margin-top:10px;
+      margin-bottom:8px;
+    }
+    .input{
+      width:100%;
+      padding:14px;
+      border:1px solid #ebedf5;
+      border-radius:14px;
+      outline:none;
+      font-size:14px;
+    }
+    .primary{
+      width:100%;
+      border:none;
+      padding:15px;
+      border-radius:16px;
+      margin-top:14px;
+      background:linear-gradient(135deg,#5b22d6,#7d48ff);
+      color:#fff;
+      font-size:15px;
+      font-weight:800;
+      cursor:pointer;
+      box-shadow:0 10px 24px rgba(91,34,214,.22);
+    }
+    .secondary{
+      width:100%;
+      border:none;
+      padding:14px;
+      border-radius:14px;
+      margin-top:10px;
+      background:#f2efff;
+      color:#5b22d6;
+      font-size:14px;
+      font-weight:800;
+      cursor:pointer;
+    }
+
+    .profileCard{
+      text-align:center;
+      padding:24px 16px;
+    }
+    .avatar{
+      width:82px;
+      height:82px;
+      border-radius:50%;
+      background:#ede4ff;
+      margin:0 auto 12px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-size:34px;
+    }
+    .small{
+      font-size:13px;
+      color:#666;
+      line-height:1.5;
+    }
+    .profileList{
+      display:flex;
+      flex-direction:column;
+      gap:12px;
+    }
+    .profileItem{
+      background:#fff;
+      border-radius:18px;
+      padding:15px;
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      box-shadow:0 10px 24px rgba(0,0,0,.06);
+      font-weight:700;
+      cursor:pointer;
+    }
+
+    /* REAL SCANNER BOX */
+    .qrContainer{
+      width:260px;
+      height:260px;
+      margin:16px auto;
+      border-radius:24px;
+      overflow:hidden;
+      background:#000;
+      position:relative;
+      border:4px solid #fff;
+      box-shadow:0 10px 24px rgba(0,0,0,.1);
+    }
+    #cameraStream{
+      width:100%;
+      height:100%;
+      object-fit:cover;
+    }
+    .qrOverlay{
+      position:absolute;
+      inset:40px;
+      border:2px solid rgba(255,255,255,0.4);
+      border-radius:12px;
+    }
+
+    .bottom{
+      position:fixed;
+      bottom:0;
+      left:50%;
+      transform:translateX(-50%);
+      max-width:430px;
+      width:100%;
+      background:#fff;
+      display:flex;
+      justify-content:space-around;
+      padding:12px 8px 16px;
+      border-top-left-radius:22px;
+      border-top-right-radius:22px;
+      box-shadow:0 -8px 26px rgba(0,0,0,.08);
+      z-index:30;
+    }
+    .nav{
+      flex:1;
+      text-align:center;
+      color:#777;
+      font-size:11px;
+      font-weight:800;
+      cursor:pointer;
+    }
+    .nav div{
+      font-size:20px;
+      margin-bottom:5px;
+    }
+    .nav.active{color:#5b22d6;}
+
+    .modal{
+      position:fixed;
+      inset:0;
+      background:rgba(0,0,0,.42);
+      display:none;
+      align-items:flex-end;
+      z-index:99;
+    }
+    .modal.show{display:flex;}
+    .sheet{
+      width:100%;
+      max-width:430px;
+      margin:auto;
+      background:#fff;
+      border-top-left-radius:24px;
+      border-top-right-radius:24px;
+      padding:18px 16px 24px;
+      animation:up .22s ease;
+    }
+    @keyframes up{
+      from{transform:translateY(100%)}
+      to{transform:translateY(0)}
+    }
+    .grab{
+      width:54px;
+      height:6px;
+      background:#ddd;
+      border-radius:999px;
+      margin:0 auto 16px;
+    }
+    .optionGrid{
+      display:grid;
+      grid-template-columns:repeat(3,1fr);
+      gap:12px;
+      margin-top:16px;
+    }
+    .option{
+      background:#f6f3ff;
+      border-radius:16px;
+      padding:14px 8px;
+      text-align:center;
+      font-weight:800;
+      font-size:13px;
+      cursor:pointer;
+    }
+
+    .toast{
+      position:fixed;
+      left:50%;
+      transform:translateX(-50%);
+      bottom:98px;
+      background:#1f1f1f;
+      color:#fff;
+      padding:12px 16px;
+      border-radius:14px;
+      font-size:13px;
+      display:none;
+      z-index:120;
+      white-space:nowrap;
+    }
+    .toast.show{display:block;}
+
+    .successScreen{
+      text-align:center;
+      padding:40px 20px;
+    }
+    .successCircle{
+      width:92px;
+      height:92px;
+      border-radius:50%;
+      margin:0 auto 18px;
+      background:linear-gradient(135deg,#17c964,#11a84f);
+      color:#fff;
+      font-size:42px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      box-shadow:0 12px 28px rgba(17,168,79,.25);
+    }
+    .statRow{
+      display:flex;
+      gap:12px;
+      margin-top:12px;
+    }
+    .stat{
+      flex:1;
+      background:#f7f7fc;
+      border-radius:16px;
+      padding:14px;
+      text-align:center;
+    }
+    .stat h4{
+      font-size:18px;
+      margin-bottom:4px;
+    }
+    .stat p{
+      font-size:12px;
+      color:#666;
+      font-weight:700;
+    }
+  </style>
+</head>
+<body>
+<div class="app">
+
+  <div class="screen active" id="homeScreen">
+    <div class="top">
+      <div class="row">
+        <div class="brand">
+          <div class="logo">PF</div>
+          <div>
+            <h1>PayFlow</h1>
+            <p>Wallet App</p>
+          </div>
+        </div>
+        <div class="profileMini" onclick="goTo('profileScreen')">👤</div>
+      </div>
+      <div class="search">
+        <input type="text" placeholder="Search people, bills, recharge..." oninput="searchFeature(this.value)">
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="card balanceCard">
+        <div class="balanceHead">
+          <h3>Wallet Balance</h3>
+          <div class="badge" id="walletStatus">Active</div>
+        </div>
+        <div class="balanceAmt" id="walletBalance">₹12,480.00</div>
+        <div class="miniGrid">
+          <div class="miniBtn" onclick="openModal('addMoneyModal')">Add Money</div>
+          <div class="miniBtn" onclick="goTo('bankScreen')">Bank Account</div>
+          <div class="miniBtn" onclick="goTo('historyScreen')">Passbook</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="titleRow">
+        <h2>Money Transfer</h2>
+        <div class="link" onclick="showToast('All transfer options are available below')">View all</div>
+      </div>
+      <div class="grid4">
+        <div class="action" onclick="goTo('sendScreen')">
+          <div class="actionIcon">📱</div>
+          <p>To Mobile</p>
+        </div>
+        <div class="action" onclick="goTo('bankTransferScreen')">
+          <div class="actionIcon">🏦</div>
+          <p>To Bank</p>
+        </div>
+        <div class="action" onclick="goTo('scanScreen')">
+          <div class="actionIcon">🔳</div>
+          <p>Scan QR</p>
+        </div>
+        <div class="action" onclick="selfTransfer()">
+          <div class="actionIcon">💸</div>
+          <p>Self Transfer</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="titleRow">
+        <h2>Recharge & Bills</h2>
+        <div class="link" onclick="showToast('More bill categories can be added later')">See more</div>
+      </div>
+      <div class="grid4">
+        <div class="action" onclick="goTo('rechargeScreen')">
+          <div class="actionIcon">📶</div>
+          <p>Recharge</p>
+        </div>
+        <div class="action" onclick="goTo('billScreen')">
+          <div class="actionIcon">💡</div>
+          <p>Electricity</p>
+        </div>
+        <div class="action" onclick="paySimpleBill('DTH Recharge', 399, '📺')">
+          <div class="actionIcon">📺</div>
+          <p>DTH</p>
+        </div>
+        <div class="action" onclick="paySimpleBill('Water Bill', 250, '🚰')">
+          <div class="actionIcon">🚰</div>
+          <p>Water</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="promo">
+        <h3>Special Cashback Offer</h3>
+        <p>This app is fully interactive. Buttons work like a real app, manage your wallet balance efficiently.</p>
+        <button onclick="showToast('Offer opened successfully')">Explore</button>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="titleRow">
+        <h2>Recent Transactions</h2>
+        <div class="link" onclick="goTo('historyScreen')">Full history</div>
+      </div>
+      <div class="txnList" id="recentTransactions"></div>
+    </div>
+  </div>
+
+  <div class="screen" id="sendScreen">
+    <div class="sub">
+      <div class="head">
+        <h2>Send Money</h2>
+        <div class="back" onclick="goTo('homeScreen')">✕</div>
+      </div>
+      <div class="box">
+        <label class="label">Receiver Name</label>
+        <input class="input" id="sendName" placeholder="Enter receiver name">
+        <label class="label">Mobile Number / UPI ID</label>
+        <input class="input" id="sendId" placeholder="Enter mobile number or UPI ID">
+        <label class="label">Amount</label>
+        <input class="input" id="sendAmount" type="number" placeholder="Enter amount">
+        <button class="primary" onclick="sendMoney()">Pay Now</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="screen" id="bankTransferScreen">
+    <div class="sub">
+      <div class="head">
+        <h2>Bank Transfer</h2>
+        <div class="back" onclick="goTo('homeScreen')">✕</div>
+      </div>
+      <div class="box">
+        <label class="label">Account Holder</label>
+        <input class="input" id="bankName" placeholder="Enter account holder name">
+        <label class="label">Account Number</label>
+        <input class="input" id="bankAccount" placeholder="Enter account number">
+        <label class="label">IFSC Code</label>
+        <input class="input" id="bankIfsc" placeholder="Enter IFSC code">
+        <label class="label">Amount</label>
+        <input class="input" id="bankAmount" type="number" placeholder="Enter amount">
+        <button class="primary" onclick="bankTransfer()">Transfer</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="screen" id="rechargeScreen">
+    <div class="sub">
+      <div class="head">
+        <h2>Mobile Recharge</h2>
+        <div class="back" onclick="goTo('homeScreen')">✕</div>
+      </div>
+      <div class="box">
+        <label class="label">Mobile Number</label>
+        <input class="input" id="rechargeMobile" placeholder="Enter mobile number">
+        <label class="label">Operator</label>
+        <input class="input" id="rechargeOperator" placeholder="Ex: Airtel / Jio / Vi">
+        <label class="label">Plan Amount</label>
+        <input class="input" id="rechargeAmount" type="number" placeholder="Enter amount">
+        <button class="primary" onclick="mobileRecharge()">Recharge Now</button>
+        <button class="secondary" onclick="quickRecharge(299)">Quick ₹299</button>
+        <button class="secondary" onclick="quickRecharge(399)">Quick ₹399</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="screen" id="billScreen">
+    <div class="sub">
+      <div class="head">
+        <h2>Electricity Bill</h2>
+        <div class="back" onclick="goTo('homeScreen')">✕</div>
+      </div>
+      <div class="box">
+        <label class="label">Consumer Number</label>
+        <input class="input" id="billConsumer" placeholder="Enter consumer number">
+        <label class="label">Board Name</label>
+        <input class="input" id="billBoard" placeholder="Enter electricity board name">
+        <label class="label">Bill Amount</label>
+        <input class="input" id="billAmount" type="number" placeholder="Enter amount">
+        <button class="primary" onclick="electricityBill()">Pay Bill</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="screen" id="scanScreen">
+    <div class="sub">
+      <div class="head">
+        <h2>Scan & Pay</h2>
+        <div class="back" onclick="stopScanner(); goTo('homeScreen')">✕</div>
+      </div>
+      <div class="box" style="text-align:center;">
+        <h3>Scanner</h3>
+        <div class="qrContainer">
+          <video id="cameraStream" autoplay playsinline></video>
+          <div class="qrOverlay"></div>
+        </div>
+        <p class="small">Scan any UPI QR code to make a payment.</p>
+        <button class="primary" onclick="simulateQRPay()">Manual Scan</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="screen" id="historyScreen">
+    <div class="sub">
+      <div class="head">
+        <h2>Transaction History</h2>
+        <div class="back" onclick="goTo('homeScreen')">⌂</div>
+      </div>
+      <div class="box">
+        <div class="statRow">
+          <div class="stat">
+            <h4 id="totalTxnCount">0</h4>
+            <p>Total Txns</p>
+          </div>
+          <div class="stat">
+            <h4 id="totalSpent">₹0</h4>
+            <p>Total Spent</p>
+          </div>
+        </div>
+      </div>
+      <div class="txnList" id="fullTransactions"></div>
+    </div>
+  </div>
+
+  <div class="screen" id="profileScreen">
+    <div class="sub">
+      <div class="head">
+        <h2>Profile</h2>
+        <div class="back" onclick="goTo('homeScreen')">⌂</div>
+      </div>
+      <div class="box profileCard">
+        <div class="avatar">👤</div>
+        <h3>Ranjan User</h3>
+        <p class="small" style="margin-top:8px;">+91 9876543210</p>
+      </div>
+      <div class="profileList">
+        <div class="profileItem" onclick="goTo('bankScreen')"><span>Bank Accounts</span><span>›</span></div>
+        <div class="profileItem" onclick="showToast('UPI settings opened')"><span>UPI Settings</span><span>›</span></div>
+        <div class="profileItem" onclick="showToast('Rewards page coming soon')"><span>Rewards & Offers</span><span>›</span></div>
+        <div class="profileItem" onclick="showToast('Security options opened')"><span>Security</span><span>›</span></div>
+        <div class="profileItem" onclick="showToast('Help & support opened')"><span>Help & Support</span><span>›</span></div>
+        <div class="profileItem" onclick="showToast('Logout')"><span>Logout</span><span>›</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="screen" id="bankScreen">
+    <div class="sub">
+      <div class="head">
+        <h2>Bank Accounts</h2>
+        <div class="back" onclick="goTo('homeScreen')">✕</div>
+      </div>
+      <div class="box">
+        <h3 style="margin-bottom:10px;">Linked Account</h3>
+        <p class="small">State Bank of India</p>
+        <p class="small">A/c No: XXXX XXXX 4821</p>
+        <p class="small">UPI Status: Active</p>
+        <button class="primary" onclick="showToast('Bank account already linked')">Manage Account</button>
+        <button class="secondary" onclick="showToast('Add new bank account')">Add Another Bank</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="screen" id="successScreen">
+    <div class="sub">
+      <div class="box successScreen">
+        <div class="successCircle">✓</div>
+        <h2 id="successTitle">Payment Successful</h2>
+        <p class="small" id="successText" style="margin-top:8px;">Your transaction was completed successfully.</p>
+        <button class="primary" onclick="goTo('historyScreen')">View History</button>
+        <button class="secondary" onclick="goTo('homeScreen')">Back to Home</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="bottom">
+    <div class="nav active" onclick="goTo('homeScreen', this)"><div>⌂</div>Home</div>
+    <div class="nav" onclick="goTo('scanScreen', this)"><div>◫</div>Scan</div>
+    <div class="nav" onclick="goTo('sendScreen', this)"><div>₹</div>Pay</div>
+    <div class="nav" onclick="goTo('historyScreen', this)"><div>🕘</div>History</div>
+    <div class="nav" onclick="goTo('profileScreen', this)"><div>👤</div>Profile</div>
+  </div>
+
+  <div class="modal" id="addMoneyModal" onclick="closeModal(event, 'addMoneyModal')">
+    <div class="sheet">
+      <div class="grab"></div>
+      <h3>Add Money</h3>
+      <p class="small" style="margin-top:8px;">Choose a method to add money to your wallet.</p>
+      <div class="optionGrid">
+        <div class="option" onclick="addMoney(500)">💳<br>₹500</div>
+        <div class="option" onclick="addMoney(1000)">🏦<br>₹1000</div>
+        <div class="option" onclick="addMoney(2000)">📲<br>₹2000</div>
+      </div>
+      <button class="primary" onclick="document.getElementById('addMoneyModal').classList.remove('show')">Done</button>
+    </div>
+  </div>
+
+  <div class="toast" id="toast">Done</div>
+</div>
+
+<script>
+  let wallet = 12480;
+  let transactions = [
+    {title:"Grocery Store", subtitle:"20 Apr 2026 • UPI Payment", amount:-540, icon:"🛒", type:"spent"},
+    {title:"Mobile Recharge", subtitle:"19 Apr 2026 • Recharge", amount:-299, icon:"📱", type:"spent"},
+    {title:"Rahul Sharma", subtitle:"18 Apr 2026 • Received Money", amount:1200, icon:"👤", type:"received"}
+  ];
+
+  let videoStream = null;
+  let scanning = false;
+
+  function formatMoney(num){
+    return "₹" + Number(num).toLocaleString("en-IN", {minimumFractionDigits:2, maximumFractionDigits:2});
+  }
+
+  function updateWallet(){
+    document.getElementById("walletBalance").innerText = formatMoney(wallet);
+  }
+
+  function renderTransactions(){
+    const recent = document.getElementById("recentTransactions");
+    const full = document.getElementById("fullTransactions");
+    recent.innerHTML = "";
+    full.innerHTML = "";
+
+    let spent = 0;
+    transactions.forEach(txn => {
+      if(txn.amount < 0) spent += Math.abs(txn.amount);
+    });
+
+    document.getElementById("totalTxnCount").innerText = transactions.length;
+    document.getElementById("totalSpent").innerText = "₹" + spent.toLocaleString("en-IN");
+
+    const recentData = transactions.slice(0, 3);
+    recentData.forEach(txn => recent.appendChild(createTxn(txn)));
+    transactions.forEach(txn => full.appendChild(createTxn(txn)));
+  }
+
+  function createTxn(txn){
+    const wrap = document.createElement("div");
+    wrap.className = "txn";
+    wrap.innerHTML = `
+      <div class="txnLeft">
+        <div class="txnIcon">${txn.icon}</div>
+        <div class="txnInfo">
+          <h4>${txn.title}</h4>
+          <p>${txn.subtitle}</p>
+        </div>
+      </div>
+      <div class="txnAmt">
+        <h5>${txn.amount >= 0 ? "+ " : "- "}${formatMoney(Math.abs(txn.amount))}</h5>
+        <div class="${txn.type === 'received' ? 'received' : 'success'}">${txn.type === 'received' ? 'Received' : 'Success'}</div>
+      </div>
+    `;
+    return wrap;
+  }
+
+  function addTransaction(title, subtitle, amount, icon, type){
+    transactions.unshift({title, subtitle, amount, icon, type});
+    updateWallet();
+    renderTransactions();
+  }
+
+  function currentDateText(){
+    const d = new Date();
+    return d.toLocaleDateString("en-GB", {day:"2-digit", month:"short", year:"numeric"}) + " • " +
+           d.toLocaleTimeString("en-US", {hour:"2-digit", minute:"2-digit"});
+  }
+
+  async function startScanner() {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } });
+      const video = document.getElementById('cameraStream');
+      video.srcObject = stream;
+      videoStream = stream;
+      scanning = true;
+      requestAnimationFrame(tick);
+    } catch (err) {
+      showToast("Camera permission denied");
+    }
+  }
+
+  function tick() {
+    if (!scanning) return;
+    const video = document.getElementById('cameraStream');
+    if (video.readyState === video.HAVE_ENOUGH_DATA) {
+      const canvas = document.createElement("canvas");
+      canvas.height = video.videoHeight;
+      canvas.width = video.videoWidth;
+      const ctx = canvas.getContext("2d");
+      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+      const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+      const code = jsQR(imageData.data, imageData.width, imageData.height);
+      if (code) {
+        handleQRCode(code.data);
+        return;
+      }
+    }
+    requestAnimationFrame(tick);
+  }
+
+  function handleQRCode(data) {
+    if (data.includes("upi://pay")) {
+        const urlParams = new URLSearchParams(data.split('?')[1]);
+        const name = urlParams.get('pn') || "UPI Merchant";
+        const upiId = urlParams.get('pa') || "Unknown";
+        
+        stopScanner();
+        document.getElementById("sendName").value = decodeURIComponent(name);
+        document.getElementById("sendId").value = upiId;
+        
+        showToast("QR Scanned Successfully");
+        goTo('sendScreen');
+    }
+  }
+
+  function stopScanner() {
+    scanning = false;
+    if (videoStream) {
+      videoStream.getTracks().forEach(track => track.stop());
+      videoStream = null;
+    }
+  }
+
+  function goTo(id, el=null){
+    stopScanner();
+    document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
+    document.getElementById(id).classList.add("active");
+
+    if(id === 'scanScreen') startScanner();
+
+    document.querySelectorAll(".nav").forEach(n => n.classList.remove("active"));
+    if(el){
+      el.classList.add("active");
+    } else {
+      const map = {homeScreen:0, scanScreen:1, sendScreen:2, historyScreen:3, profileScreen:4};
+      if(map[id] !== undefined) document.querySelectorAll(".nav")[map[id]].classList.add("active");
+    }
+    window.scrollTo({top:0, behavior:"smooth"});
+  }
+
+  function showToast(text){
+    const toast = document.getElementById("toast");
+    toast.innerText = text;
+    toast.classList.add("show");
+    setTimeout(() => toast.classList.remove("show"), 2200);
+  }
+
+  function openModal(id){ document.getElementById(id).classList.add("show"); }
+  function closeModal(e, id){ if(e.target.id === id) document.getElementById(id).classList.remove("show"); }
+
+  function showSuccess(title, text){
+    document.getElementById("successTitle").innerText = title;
+    document.getElementById("successText").innerText = text;
+    goTo("successScreen");
+  }
+
+  function addMoney(amount){
+    wallet += amount;
+    addTransaction("Wallet Top Up", currentDateText(), amount, "💰", "received");
+    document.getElementById("addMoneyModal").classList.remove("show");
+    showSuccess("Money Added", formatMoney(amount) + " added successfully.");
+  }
+
+  function validateSpend(amount){
+    if(!amount || amount <= 0) { showToast("Enter valid amount"); return false; }
+    if(amount > wallet) { showToast("Insufficient balance"); return false; }
+    return true;
+  }
+
+  function sendMoney(){
+    const name = document.getElementById("sendName").value.trim();
+    const id = document.getElementById("sendId").value.trim();
+    const amount = Number(document.getElementById("sendAmount").value);
+    if(!name || !id || !amount) { showToast("Fill all details"); return; }
+    if(!validateSpend(amount)) return;
+    wallet -= amount;
+    addTransaction(name, currentDateText() + " • UPI Payment", -amount, "👤", "spent");
+    showSuccess("Payment Successful", "Payment of " + formatMoney(amount) + " sent to " + name + ".");
+  }
+
+  function bankTransfer(){
+    const name = document.getElementById("bankName").value.trim();
+    const amount = Number(document.getElementById("bankAmount").value);
+    if(!name || !amount) { showToast("Fill all details"); return; }
+    if(!validateSpend(amount)) return;
+    wallet -= amount;
+    addTransaction(name, currentDateText() + " • Bank transfer", -amount, "🏦", "spent");
+    showSuccess("Transfer Successful", "Bank transfer of " + formatMoney(amount) + " completed.");
+  }
+
+  function mobileRecharge(){
+    const mobile = document.getElementById("rechargeMobile").value.trim();
+    const amount = Number(document.getElementById("rechargeAmount").value);
+    if(!mobile || !amount) { showToast("Fill details"); return; }
+    if(!validateSpend(amount)) return;
+    wallet -= amount;
+    addTransaction("Mobile Recharge", currentDateText() + " • " + mobile, -amount, "📱", "spent");
+    showSuccess("Recharge Successful", "Recharge of " + formatMoney(amount) + " completed.");
+  }
+
+  function quickRecharge(amount){
+    document.getElementById("rechargeAmount").value = amount;
+    showToast("Plan selected: " + formatMoney(amount));
+  }
+
+  function electricityBill(){
+    const board = document.getElementById("billBoard").value.trim();
+    const amount = Number(document.getElementById("billAmount").value);
+    if(!board || !amount) { showToast("Fill details"); return; }
+    if(!validateSpend(amount)) return;
+    wallet -= amount;
+    addTransaction("Electricity Bill", currentDateText() + " • " + board, -amount, "💡", "spent");
+    showSuccess("Bill Paid", "Bill of " + formatMoney(amount) + " paid successfully.");
+  }
+
+  function paySimpleBill(title, amount, icon){
+    if(!validateSpend(amount)) return;
+    wallet -= amount;
+    addTransaction(title, currentDateText() + " • Payment", -amount, icon, "spent");
+    showSuccess("Payment Successful", title + " paid for " + formatMoney(amount) + ".");
+  }
+
+  function simulateQRPay(){
+    document.getElementById("sendName").value = "Local Shop";
+    document.getElementById("sendId").value = "merchant@upi";
+    goTo('sendScreen');
+  }
+
+  function selfTransfer(){
+    addTransaction("Self Transfer", currentDateText() + " • Bank", 0, "💸", "received");
+    showSuccess("Self Transfer Successful", "Transfer to bank account completed.");
+  }
+
+  function searchFeature(value){
+    document.getElementById("walletStatus").innerText = value.trim() ? "Searching..." : "Active";
+  }
+
+  updateWallet();
+  renderTransactions();
+</script>
+</body>
+</html>
